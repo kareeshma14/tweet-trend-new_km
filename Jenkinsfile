@@ -21,7 +21,7 @@ pipeline {
             steps {
                 script {
                     echo '<--------------- Jar Publish Started --------------->'
-                    def server = Artifactory.server('your-artifactory-server-id')  // Update with your configured server ID
+                    def server = Artifactory.server('artfact_cred')  // Update with your configured server ID
                     def properties = "buildid=${env.BUILD_ID},commitid=${env.GIT_COMMIT}"
                     def uploadSpec = """{
                         "files": [
