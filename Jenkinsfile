@@ -1,45 +1,54 @@
-def registry = 'https://kareeshma.jfrog.io'
-
+def registry = 'https://kareeshma.jfrog.io/'
 pipeline {
     agent {
         node {
             label 'maven'
         }
     }
-    environment {
-        PATH = "/opt/apache-maven-3.9.9/bin:$PATH"
-    }
-
+environment {
+    PATH = "/opt/apache-maven-3.9.2/bin:$PATH"
+}
     stages {
-        stage("build") {
+        stage("build"){
             steps {
-                sh 'mvn clean deploy'
+                 echo "----------- build started ----------"
+                sh 'mvn clean deploy -Dmaven.test.skip=true'
+                 echo "----------- build complted ----------"
             }
         }
+        stage("test"){
+            steps{
+                echo "----------- unit test started ----------"
+                sh 'mvn surefire-report:report'
+                 echo "----------- unit test Complted ----------"
+            }
         
+  
+}
+    }
+  }
         stage("Jar Publish") {
             steps {
-                script {
+            script {
                     echo '<--------------- Jar Publish Started --------------->'
-                    def server = Artifactory.server('artfact_cred')  // Update with your configured server ID
-                    def properties = "buildid=${env.BUILD_ID},commitid=${env.GIT_COMMIT}"
-                    def uploadSpec = """{
-                        "files": [
+                     def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"artifact_cred"
+                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+                     def uploadSpec = """{
+                          "files": [
                             {
-                                "pattern": "target/*.jar",
-                                "target": "libs-release-local/com/valaxy/demo-workshop/${BUILD_ID}/",
-                                "props": "${properties}",
-                                "flat": "false"
+                              "pattern": "jarstaging/(*)",
+                              "target": "libs-release-local/{1}",
+                              "flat": "false",
+                              "props" : "${properties}",
+                              "exclusions": [ "*.sha1", "*.md5"]
                             }
-                        ]
-                    }"""
-                    def buildInfo = Artifactory.newBuildInfo()
-                    buildInfo.env.collect()
-                    server.upload(uploadSpec, buildInfo)
-                    server.publishBuildInfo(buildInfo)
-                    echo '<--------------- Jar Publish Ended --------------->'
-                }
+                         ]
+                     }"""
+                     def buildInfo = server.upload(uploadSpec)
+                     buildInfo.env.collect()
+                     server.publishBuildInfo(buildInfo)
+                     echo '<--------------- Jar Publish Ended --------------->'  
+            
             }
-        }
-    }
-}
+        }   
+    }   
