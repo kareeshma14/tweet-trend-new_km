@@ -1,46 +1,45 @@
-def registry = 'https://kareeshma.jfrog.io/'
+def registry = 'https://kareeshma.jfrog.io'
+
 pipeline {
     agent {
-        node{
+        node {
             label 'maven'
         }
     }
-    environment{
+    environment {
         PATH = "/opt/apache-maven-3.9.9/bin:$PATH"
     }
 
     stages {
-        stage("build"){
-            steps{
+        stage("build") {
+            steps {
                 sh 'mvn clean deploy'
             }
         }
-    
-    
+        
         stage("Jar Publish") {
             steps {
                 script {
                     echo '<--------------- Jar Publish Started --------------->'
-                     def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"artifact_cred"
-                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
-                     def uploadSpec = """{
-                          "files": [
+                    def server = Artifactory.server('artifact_cred')
+                    def properties = "buildid=${env.BUILD_ID},commitid=${env.GIT_COMMIT}"
+                    def uploadSpec = """{
+                        "files": [
                             {
-                              "pattern": "jarstaging/(*)",
-                              "target": "libs-release-local/{1}",
-                              "flat": "false",
-                              "props" : "${properties}",
-                              "exclusions": [ "*.sha1", "*.md5"]
+                                "pattern": "target/*.jar",
+                                "target": "libs-release-local/com/valaxy/demo-workshop/${BUILD_ID}/",
+                                "props": "${properties}",
+                                "flat": "false"
                             }
-                         ]
-                     }"""
-                     def buildInfo = server.upload(uploadSpec)
-                     buildInfo.env.collect()
-                     server.publishBuildInfo(buildInfo)
-                     echo '<--------------- Jar Publish Ended --------------->'  
-            
+                        ]
+                    }"""
+                    def buildInfo = Artifactory.newBuildInfo()
+                    buildInfo.env.collect()
+                    server.upload(uploadSpec, buildInfo)
+                    server.publishBuildInfo(buildInfo)
+                    echo '<--------------- Jar Publish Ended --------------->'
+                }
             }
-        }   
-    }   
-}
+        }
+    }
 }
