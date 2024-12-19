@@ -22,8 +22,8 @@ environment {
   }
         stage("Jar Publish") {
             steps {
-            script {
-                    echo '<--------------- Jar Publish Started --------------->'
+                script {
+                    echo '<--------------- Jar Publish Started -------------->'
                      def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"artifact_cred"
                      def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
                      def uploadSpec = """{
@@ -41,7 +41,9 @@ environment {
                      buildInfo.env.collect()
                      server.publishBuildInfo(buildInfo)
                      echo '<--------------- Jar Publish Ended --------------->'  
-            
+                                
             }
         }   
-    }   
+    } 
+
+            
