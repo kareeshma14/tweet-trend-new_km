@@ -12,15 +12,8 @@ environment {
         stage("build"){
             steps {
                  echo "----------- build started ----------"
-                sh 'mvn clean deploy -Dmaven.test.skip=true'
+                sh 'mvn clean deploy'
                  echo "----------- build complted ----------"
-            }
-        }
-        stage("test"){
-            steps{
-                echo "----------- unit test started ----------"
-                sh 'mvn surefire-report:report'
-                 echo "----------- unit test Complted ----------"
             }
         
   
@@ -37,7 +30,7 @@ environment {
                           "files": [
                             {
                               "pattern": "jarstaging/(*)",
-                              "target": "libs-release-local/{1}",
+                              "target": "maven-libs-release-local/{1}",
                               "flat": "false",
                               "props" : "${properties}",
                               "exclusions": [ "*.sha1", "*.md5"]
