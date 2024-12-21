@@ -67,7 +67,7 @@ pipeline {
                     docker.withRegistry(registry, 'artifact_cred'){
                     app.push()
                 }    
-                    echo '<--------------- Docker Publish Ended --------------->'  
+                    echo '<--------------- Docker Publish Ended -------------->'  
             }
         }
     }
