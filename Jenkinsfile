@@ -1,6 +1,6 @@
 def registry = 'https://kareeshma.jfrog.io/'
 def imageName = 'kareeshma.jfrog.io/valaxy-docker-local/ttjob'
-def version   = '2.1.2'
+def version   = '2.1.3'
 
 pipeline {
     agent {
