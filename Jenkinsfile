@@ -22,17 +22,15 @@ pipeline {
             }
         }
         stage('SonarQube analysis') {
-            environment{
-                scannerHome = tool 'valaxy-sonar-scanner';
+            environment {
+                scannerHome = tool 'valaxy-sonar-scanner'
             }
-            steps{
-            withSonarQubeEnv('valaxy-sonarqube-server') { // If you have configured more than one global server connection, you can specify its name
-                sh "${scannerHome}/bin/sonar-scanner"
-            }
+            steps {
+                withSonarQubeEnv('valaxy-sonarqube-server') {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }
             }
         }
-    }
-
         stage("Jar Publish") {
             steps {
                 script {
@@ -61,34 +59,32 @@ pipeline {
                 }
             }
         }
-        stage(" Docker Build ") {
+        stage("Docker Build") {
             steps {
                 script {
                     echo '<--------------- Docker Build Started --------------->'
                     app = docker.build(imageName+":"+version)
                     echo '<--------------- Docker Build Ends ------------------>'
+                }
+            }
         }
-      }
-    }
-
-        stage (" Docker Publish "){
+        stage("Docker Publish") {
             steps {
                 script {
                     echo '<--------------- Docker Publish Started --------------->'  
-                    docker.withRegistry(registry, 'artifact_cred'){
-                    app.push()
-                }    
+                    docker.withRegistry(registry, 'artifact_cred') {
+                        app.push()
+                    }
                     echo '<--------------- Docker Publish Ended -------------->'  
+                }
+            }
+        }
+        stage("Deploy") {
+            steps {
+                script {
+                    sh './deploy.sh'
+                }
             }
         }
     }
-
-    stage("Deploy"){
-        steps{
-            script{
-                sh './deploy.sh'
-            }
-        }
-    }
-    }
-
+}
