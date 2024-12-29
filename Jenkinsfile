@@ -102,7 +102,7 @@ pipeline {
             steps {
                 script {
                     echo '<--------------- Helm Deploy Started --------------->'
-                    sh 'helm install ttjob ttjob.rar'
+                    sh 'helm install ttjob ttjob-0.1.0.tgz'
                     echo '<--------------- Helm deploy Ends --------------->'
          }
        }
